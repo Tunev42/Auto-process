@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}История проверок{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>История проверок</h1>
+    <p class="section-sub">
+      Каждая проверка со страницы «Проверить» сохраняется в базу данных
+      (таблица predictions) — как журнал, который менеджер ведёт сам себе,
+      чтобы не проверять одного и того же клиента по сто раз.
+      Показываю последние {{ preds | length }}.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if preds %}
+    <div class="history-actions">
+      <form method="post" action="/history/clear"
+            onsubmit="return confirm('Точно стереть всю историю проверок?');">
+        <button class="btn btn-danger" type="submit">Очистить историю</button>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Когда</th>
+            <th>Клиент</th>
+            <th>Риск ухода</th>
+            <th>Что делать менеджеру</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in preds %}
+          <tr>
+            <td class="muted">{{ p.id }}</td>
+            <td class="muted">{{ p.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            <td class="name-cell">{{ p.client_name }}</td>
+            <td>
+              <div class="risk-cell">
+                <span class="risk-badge {{ 'risk-high' if p.risk >= 0.7 else ('risk-mid' if p.risk >= 0.4 else 'risk-low') }}">
+                  {{ (p.risk * 100) | round | int }}%
+                </span>
+                <span class="risk-bar"><span class="risk-bar-fill {{ 'risk-high' if p.risk >= 0.7 else ('risk-mid' if p.risk >= 0.4 else 'risk-low') }}" style="width: {{ (p.risk * 100) | round | int }}%"></span></span>
+              </div>
+            </td>
+            <td class="muted">{{ p.verdict }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="panel empty-history">
+      <p>История пока пустая. Открой страницу
+         <a href="/demo">«Проверить клиента»</a> и прогони кого-нибудь через
+         сеть — результат сразу появится здесь.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

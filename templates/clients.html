@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Клиенты магазина{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Клиенты магазина</h1>
+    <p class="section-sub">
+      Все {{ total }} клиентов из базы данных (таблица clients) и риск ухода,
+      который посчитала нейросеть. Самые рискованные — вверху списка.
+      Кликни на имя — откроется карточка клиента со всеми данными из базы.
+      В колонке «на самом деле» написано, что с клиентом стало потом, —
+      по ней видно, угадала сеть или нет.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <form method="get" action="/clients" class="filters">
+      <input type="text" name="q" value="{{ q }}" placeholder="Поиск по имени клиента...">
+      <label class="check">
+        <input type="checkbox" name="risk" value="1" {{ 'checked' if only_risk else '' }}
+               onchange="this.form.submit()">
+        только зона риска
+      </label>
+      <button class="btn btn-primary" type="submit">Найти</button>
+    </form>
+
+    <div class="table-note-row">
+      <p class="table-note">Найдено клиентов: <b>{{ shown }}</b>{% if q %} по запросу «{{ q }}»{% endif %}</p>
+      <a class="btn btn-ghost btn-export" href="/clients/export?q={{ q | urlencode }}{% if only_risk %}&risk=1{% endif %}">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/>
+        </svg>
+        Скачать Excel
+      </a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Клиент</th>
+            <th>Риск ухода</th>
+            <th>Что делать менеджеру</th>
+            <th>На самом деле</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td class="muted"><a class="client-link" href="/clients/{{ r.id }}">{{ r.id }}</a></td>
+            <td class="name-cell"><a class="client-link" href="/clients/{{ r.id }}">{{ r.name }}</a></td>
+            <td>
+              <div class="risk-cell">
+                <span class="risk-badge {{ 'risk-high' if r.risk >= 0.7 else ('risk-mid' if r.risk >= 0.4 else 'risk-low') }}">
+                  {{ r.risk_pct }}%
+                </span>
+                <span class="risk-bar"><span class="risk-bar-fill {{ 'risk-high' if r.risk >= 0.7 else ('risk-mid' if r.risk >= 0.4 else 'risk-low') }}" style="width: {{ r.risk_pct }}%"></span></span>
+              </div>
+            </td>
+            <td class="muted">{{ r.verdict.text }}</td>
+            <td>
+              {% if r.churned is none %}
+              <span class="fact-badge unknown">неизвестно</span>
+              {% elif r.churned %}
+              <span class="fact-badge churned">ушёл</span>
+              {% else %}
+              <span class="fact-badge stayed">остался</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not rows %}
+          <tr><td colspan="5" class="empty-row">Никого не нашлось. Попробуй другой запрос.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      {% if page > 1 %}
+      <a href="/clients?page={{ page - 1 }}&q={{ q | urlencode }}{% if only_risk %}&risk=1{% endif %}">Назад</a>
+      {% endif %}
+      {% for n in page_nums %}
+        {% if n is none %}
+        <span class="dots">…</span>
+        {% elif n == page %}
+        <span class="page-current">{{ n }}</span>
+        {% else %}
+        <a href="/clients?page={{ n }}&q={{ q | urlencode }}{% if only_risk %}&risk=1{% endif %}">{{ n }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+      <a href="/clients?page={{ page + 1 }}&q={{ q | urlencode }}{% if only_risk %}&risk=1{% endif %}">Вперёд</a>
+      {% endif %}
+    </div>
+
+    <form method="get" action="/clients" class="jump-form">
+      <input type="hidden" name="q" value="{{ q }}">
+      {% if only_risk %}<input type="hidden" name="risk" value="1">{% endif %}
+      <label for="jump-page">Перейти на страницу</label>
+      <input type="number" id="jump-page" name="page" min="1" max="{{ total_pages }}" value="{{ page }}">
+      <button class="btn btn-ghost" type="submit">Перейти</button>
+      <span class="muted">всего страниц: {{ total_pages }}</span>
+    </form>
+  </div>
+</section>
+{% endblock %}

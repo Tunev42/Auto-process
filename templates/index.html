@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="hero-tag">Автоматизация бизнес-процессов с помощью нейросетей</span>
+      <h1>Нейросеть предсказывает, <span class="grad">какой клиент уйдёт</span> из магазина</h1>
+      <p class="lead">
+        Я написал нейросеть с нуля на чистом Python — без TensorFlow и Keras.
+        Она смотрит на данные клиента интернет-магазина и предсказывает,
+        собирается ли он уйти к конкурентам. Менеджер больше не гадает:
+        звоним только тем, кто в зоне риска.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-big" href="/demo">Проверить клиента</a>
+        <a class="btn btn-ghost" href="/how">Как это устроено</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <svg viewBox="0 0 320 260" aria-hidden="true">
+        <g stroke="rgba(255,255,255,0.30)" stroke-width="1.3">
+          <path d="M50 40 L160 60 M50 40 L160 110 M50 40 L160 160 M50 90 L160 60 M50 90 L160 110 M50 90 L160 210 M50 140 L160 110 M50 140 L160 160 M50 190 L160 160 M50 190 L160 210 M50 240 L160 210 M50 240 L160 160"/>
+          <path d="M160 60 L260 130 M160 110 L260 130 M160 160 L260 130 M160 210 L260 130"/>
+        </g>
+        <g opacity="0.22">
+          <circle cx="50" cy="40" r="18" fill="#60A5FA"/>
+          <circle cx="50" cy="140" r="18" fill="#60A5FA"/>
+          <circle cx="160" cy="110" r="18" fill="#FB923C"/>
+          <circle cx="260" cy="130" r="24" fill="#34D399"/>
+        </g>
+        <g>
+          <circle cx="50" cy="40" r="12" fill="#60A5FA"/>
+          <circle cx="50" cy="90" r="12" fill="#60A5FA"/>
+          <circle cx="50" cy="140" r="12" fill="#60A5FA"/>
+          <circle cx="50" cy="190" r="12" fill="#60A5FA"/>
+          <circle cx="50" cy="240" r="12" fill="#60A5FA"/>
+          <circle cx="160" cy="60" r="12" fill="#FB923C"/>
+          <circle cx="160" cy="110" r="12" fill="#FB923C"/>
+          <circle cx="160" cy="160" r="12" fill="#FB923C"/>
+          <circle cx="160" cy="210" r="12" fill="#FB923C"/>
+          <circle cx="260" cy="130" r="16" fill="#34D399"/>
+          <text x="260" y="135" text-anchor="middle" font-size="12" font-weight="bold" fill="#0B1526">%</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-ico blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.7-5 5.5-5s4.9 1.8 5.5 5"/>
+            <circle cx="17" cy="9" r="2.4"/><path d="M15 14.4c2.3.3 4 2 4.5 4.6"/>
+          </svg>
+        </div>
+        <div class="stat-num">{{ total }}</div>
+        <div class="stat-label">клиентов в базе данных (таблица clients)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12h.01"/>
+          </svg>
+        </div>
+        <div class="stat-num">{{ '%g' | format(info.accuracy) }}%</div>
+        <div class="stat-label">точность на клиентах, которых сеть не видела</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4 21 19H3z"/><path d="M12 10v4"/><path d="M12 16.8h.01"/>
+          </svg>
+        </div>
+        <div class="stat-num">{{ at_risk }}</div>
+        <div class="stat-label">клиентов сейчас в зоне риска — сеть уже нашла их</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico indigo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 8v4l3 2"/>
+          </svg>
+        </div>
+        <div class="stat-num">{{ checks }}</div>
+        <div class="stat-label">проверок клиентов сохранено в истории (таблица predictions)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Какой бизнес-процесс автоматизирован</h2>
+    <p class="section-sub">
+      Процесс называется «удержание клиентов» (по-английски churn prediction).
+      Его реально автоматизируют банки, сотовые операторы и онлайн-магазины.
+    </p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Данные в базе</h3>
+        <p>Магазин хранит клиентов в базе SQLite (файл <code>neuro.db</code>):
+           стаж, покупки, средний чек, жалобы и ещё 4 признака у каждого.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Обучение сети</h3>
+        <p>Сеть смотрит на клиентов, которые уже ушли, и сама находит
+           закономерности. Обучение занимает около 20 секунд.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Проверка клиентов</h3>
+        <p>Обученная сеть за долю секунды проверяет всех и каждому ставит
+           риск ухода от 0 до 100%.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Работа менеджера</h3>
+        <p>Менеджер звонит и отправляет скидки только «беглецам»,
+           а не всем подряд. Время и деньги сэкономлены.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>Хочешь проверить настоящего клиента?</h2>
+        <p>Открой демо, подвинь ползунки — и сеть за секунду скажет риск ухода
+           и подскажет менеджеру, что делать: звонить, слать промокод или не трогать.</p>
+      </div>
+      <a class="btn btn-primary btn-big" href="/demo">Попробовать демо</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

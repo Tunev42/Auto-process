@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Обучение сети{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Обучение сети</h1>
+    <p class="section-sub">
+      Здесь видно, как сеть училась: с каждой эпохой (прогоном всех данных)
+      средняя ошибка падала. Экзамен — это 200 клиентов, которых сеть
+      не видела при обучении: только на них честно меряется точность.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-num" id="m-accuracy">{{ '%g' | format(info.accuracy) }}%</div>
+        <div class="metric-label">точность на «экзамене»</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num" id="m-found">{{ info.found }}/{{ info.total_churners }}</div>
+        <div class="metric-label">ушедших клиентов заметила ({{ info.recall }}%)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num" id="m-false">{{ info.false_alarms }}</div>
+        <div class="metric-label">ложных тревог — перестраховалась</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num" id="m-seconds">{{ info.seconds }} сек</div>
+        <div class="metric-label">длилось обучение ({{ info.epochs }} эпох)</div>
+      </div>
+    </div>
+
+    <div class="panel chart-panel">
+      <h3>Средняя ошибка по эпохам</h3>
+      <svg id="error-svg" viewBox="0 0 720 280"></svg>
+      <p class="hint" id="m-error-note">Ошибка — «среднеквадратичная»: разница между ответом сети
+         и правдой, возведённая в квадрат. Было {{ info.error_start }},
+         стало {{ info.error_end }}.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Параметры обучения</h3>
+      <div class="params-list">
+        <div><span>Данных</span><b>{{ info.n_clients }} клиентов</b></div>
+        <div><span>Экзамен</span><b>{{ info.n_test }} клиентов</b></div>
+        <div><span>Скрытый слой</span><b>{{ info.hidden }} нейронов</b></div>
+        <div><span>Весов в сети</span><b>{{ info.weights }}</b></div>
+        <div><span>Learning rate</span><b>{{ info.lr }}</b></div>
+        <div><span>Зерно случайности</span><b id="m-seed">{{ info.seed }}</b></div>
+        <div><span>Где хранится сеть</span><b>в базе, таблица trained_models</b></div>
+        <div><span>Обучено</span><b id="m-trained">{{ info.trained_at }}</b></div>
+      </div>
+      <div class="train-actions">
+        <button class="btn btn-primary" id="retrain-btn" type="button">Переобучить сеть</button>
+        <span id="train-status" class="hint">Сеть обучается с новыми случайными весами,
+          поэтому точность каждый раз немного плавает — как в настоящей науке.</span>
+      </div>
+      <p class="hint" id="retrain-note"></p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>window.TRAIN_HISTORY = {{ info.history | tojson }};</script>
+{% endblock %}

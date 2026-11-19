@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Как устроена нейросеть{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Как устроена моя нейросеть</h1>
+    <p class="section-sub">
+      Никакой магии: сеть — это куча маленьких формул, соединённых в слои.
+      Разбираю всё по частям, как на уроке.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="how-grid">
+      <div class="how-card">
+        <h2><span class="step-num">1</span> Нейрон</h2>
+        <p>Нейрон — «кирпичик» сети. Он берёт числа на входе, умножает каждое
+           на свой вес (вес — это «важность» числа), складывает, добавляет
+           смещение <code>b</code> и прогоняет сумму через сигмоиду:</p>
+        <div class="formula-card">
+          y = sigmoid(w<sub>1</sub>·x<sub>1</sub> + w<sub>2</sub>·x<sub>2</sub> + … + w<sub>n</sub>·x<sub>n</sub> + b)
+        </div>
+        <p>В моей сети таких нейронов 25, а весов у них — 161.</p>
+      </div>
+
+      <div class="how-card">
+        <h2><span class="step-num">2</span> Сигмоида</h2>
+        <p>Сигмоида сжимает любое число в диапазон от 0 до 1, поэтому ответ
+           нейрона удобно читать как вероятность: 0.91 — «на 91% уверен».
+           Попробуй сам: подвинь ползунок и посмотри, куда попадает точка.</p>
+        <div class="sig-box">
+          <svg id="sig-svg" viewBox="0 0 400 240" preserveAspectRatio="none">
+            <line x1="200" y1="10" x2="200" y2="230" stroke="#E4E9F3" stroke-width="1"/>
+            <line x1="20" y1="120" x2="380" y2="120" stroke="#E4E9F3" stroke-width="1"/>
+            <polyline id="sig-curve" fill="none" stroke="#2563EB" stroke-width="3"/>
+            <circle id="sig-dot" cx="200" cy="120" r="7" fill="#EF4444"/>
+          </svg>
+          <div class="sig-controls">
+            <input type="range" id="sig-x" min="-6" max="6" step="0.1" value="0">
+            <p>x = <b id="sig-x-value">0.0</b> &nbsp;→&nbsp; sigmoid(x) = <b id="sig-y-value">0.500</b></p>
+          </div>
+        </div>
+        <p class="hint">Формула: 1 / (1 + e<sup>-x</sup>). Когда x большой — ответ почти 1,
+           когда сильно отрицательный — почти 0.</p>
+      </div>
+
+      <div class="how-card how-card-wide">
+        <h2><span class="step-num">3</span> Архитектура: 8 → 16 → 1</h2>
+        <p>Слева — 8 признаков клиента (месяцы, покупки, чек, давность, жалобы,
+           скидки, корзины, письма). В середине — 16 нейронов скрытого слоя,
+           каждый выучил свою комбинацию признаков. Справа — один выход:
+           риск ухода от 0 до 1.</p>
+        <div class="net-box">
+          <svg id="net-svg" viewBox="0 0 720 520"></svg>
+        </div>
+        <p class="hint">Линии — это веса. Их 161, и при обучении каждый
+           потихоньку «подкручивается» в нужную сторону.</p>
+      </div>
+
+      <div class="how-card how-card-wide">
+        <h2><span class="step-num">4</span> Как проходит обучение</h2>
+        <div class="steps-mini">
+          <div class="mini-card"><b>1. Прямой проход</b><p>Клиент проходит через сеть, она выдаёт ответ — например, риск 0.2.</p></div>
+          <div class="mini-card"><b>2. Ошибка</b><p>Сравниваем ответ с правдой: если клиент ушёл, а сеть сказала 0.2 — промах большой.</p></div>
+          <div class="mini-card"><b>3. Backpropagation</b><p>Идём от выхода к входу и считаем «вину» (delta) каждого нейрона в этом промахе.</p></div>
+          <div class="mini-card"><b>4. Подкрутка</b><p>Каждый вес сдвигаем чуть-чуть против ошибки. И так 400 раз по всем 1000 клиентам.</p></div>
+        </div>
+        <p>Это называется обратным распространением ошибки. Самое сложное было
+           понять, зачем там производная сигмоиды — она показывает, насколько
+           сильно можно «крутить гайку» в этом месте.</p>
+      </div>
+
+      <div class="how-card">
+        <h2>Три хитрости</h2>
+        <p><b>Нормализация.</b> Все признаки сжимаются в 0..1, иначе средний чек
+           (12 000) задавил бы число жалоб (2).</p>
+        <p><b>Балансировка.</b> Ушедших всего 26%, поэтому при обучении я дублирую
+           их, иначе сеть слишком часто отвечает «он останется».</p>
+        <p><b>Экзамен.</b> 20% клиентов сеть не видит при обучении — только так
+           честно меряется точность.</p>
+      </div>
+
+      <div class="how-card">
+        <h2>Настоящий код из проекта</h2>
+        <p>Так выглядит сигмоида в моём <code>neuronet.py</code>:</p>
+        <pre class="code-block">def sigmoid(x):
+    if x > 30.0:
+        return 1.0
+    if x &lt; -30.0:
+        return 0.0
+    return 1.0 / (1.0 + math.exp(-x))</pre>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
