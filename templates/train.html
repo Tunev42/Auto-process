@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Обучение — НейроМагазин{% endblock %}
+{% block head %}<script>window.TRAIN_HISTORY = {{ info.history | tojson if info else '[]' }};</script>{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><h1>Как училась нейросеть</h1><p>Нейросеть учится на примерах клиентов, у которых уже известен результат.</p></div>
+<div class="metric-grid">
+    <div class="metric-card"><div class="metric-num" id="m-accuracy">{{ info.accuracy if info else '—' }}%</div><div class="metric-label">точность</div></div>
+    <div class="metric-card"><div class="metric-num" id="m-found">{{ info.found if info else '—' }}/{{ info.total_churners if info else '—' }}</div><div class="metric-label">найдено ушедших</div></div>
+    <div class="metric-card"><div class="metric-num" id="m-false">{{ info.false_alarms if info else '—' }}</div><div class="metric-label">ложных тревог</div></div>
+    <div class="metric-card"><div class="metric-num" id="m-seconds">{{ info.seconds if info else '—' }} сек</div><div class="metric-label">время обучения</div></div>
+</div>
+<div class="panel simple-space"><h3>График ошибки во время обучения</h3><svg id="error-svg" class="simple-chart" viewBox="0 0 720 280" role="img" aria-label="График ошибки при обучении"></svg>
+<p id="m-error-note" class="simple-note">{% if info %}Ошибка уменьшилась с {{ info.error_start }} до {{ info.error_end }}.{% endif %}</p></div>
+<div class="panel simple-space"><h3>Переобучить сеть</h3><p>Это пересчитает веса нейросети и сохранит новый результат в базе.</p>
+<div class="simple-form-row"><button class="btn btn-primary" type="button" id="retrain-btn">Переобучить</button><span id="train-status"></span></div>
+<p>Дата обучения: <span id="m-trained">{{ info.trained_at if info else '—' }}</span>. Начальное число: <span id="m-seed">{{ info.seed if info else '—' }}</span>.</p><p id="retrain-note" class="simple-note">Новые значения появятся здесь.</p></div>
+<div class="panel simple-space"><h3>Что будет, если менять порог?</h3><p>При большом пороге сайт называет меньше клиентов рискованными, но может пропустить некоторых ушедших.</p>
+<label for="thr-slider">Порог риска: <b id="thr-value">50%</b></label><input id="thr-slider" type="range" min="0.05" max="0.95" step="0.05" value="0.5">
+<div class="simple-matrix"><div>Правильно найдено ушедших: <b id="mx-tp">—</b></div><div>Ложная тревога: <b id="mx-fp">—</b></div><div>Пропущено ушедших: <b id="mx-fn">—</b></div><div>Правильно найдено оставшихся: <b id="mx-tn">—</b></div></div><p id="mx-summary" class="simple-note"></p></div>
+<div class="panel simple-space"><h3>Сравнение с простыми способами</h3><p>Всего известных клиентов: {{ baselines.total }}. Из них ушли: {{ baselines.churners }}.</p>
+<div class="table-wrap"><table class="data-table"><thead><tr><th>Способ</th><th>Правильных ответов</th></tr></thead><tbody>
+<tr><td>Всегда отвечать «останется»</td><td>{{ baselines.always_acc }}%</td></tr><tr><td>Простое правило</td><td>{{ baselines.rule_acc }}%</td></tr><tr><td>Нейросеть на всей базе</td><td>{{ baselines.net_acc }}%</td></tr></tbody></table></div><p class="simple-note">Это сравнение по всей базе. Точность на отдельных тестовых данных показана выше.</p></div>
+{% if runs %}<div class="panel simple-space"><h3>Последние обучения</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>Дата</th><th>Эпохи</th><th>Точность на тесте</th></tr></thead><tbody>{% for r in runs %}<tr><td>{{ r.trained_at }}</td><td>{{ r.epochs }}</td><td>{{ r.accuracy }}%</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+{% endblock %}

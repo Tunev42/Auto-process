@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Главная — НейроМагазин{% endblock %}
+{% block content %}
+<section class="hero simple-space">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <span class="hero-tag">Проект для школы</span>
+            <h1>Может ли нейросеть угадать, <span class="grad">кто перестанет покупать?</span></h1>
+            <p class="lead">Мы сделали сайт для выдуманного интернет-магазина. Нейросеть смотрит на покупки и подсказывает, кому из клиентов стоит уделить внимание.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="{{ url_for('demo_page') }}">Проверить клиента</a><a class="btn btn-ghost" href="{{ url_for('how_page') }}">Как это устроено</a></div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <h2 class="section-title">Наш проект в цифрах</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num">{{ total }}</div><div class="stat-label">клиентов в базе</div></div>
+        <div class="stat-card"><div class="stat-num">{{ at_risk }}</div><div class="stat-label">клиентов с заметным риском ухода</div></div>
+        <div class="stat-card"><div class="stat-num">{{ checks }}</div><div class="stat-label">проверок на сайте</div></div>
+        <div class="stat-card"><div class="stat-num">{{ info.accuracy if info else '—' }}{{ '%' if info else '' }}</div><div class="stat-label">точность на тестовых данных</div></div>
+    </div>
+</section>
+<section class="section simple-space">
+    <h2 class="section-title">Что можно сделать на сайте?</h2>
+    <div class="simple-grid">
+        <div class="panel"><h3>Проверить клиента</h3><p class="simple-card-text">Ввести показатели и посмотреть прогноз нейросети.</p><a href="{{ url_for('demo_page') }}">Открыть проверку</a></div>
+        <div class="panel"><h3>Посмотреть клиентов</h3><p class="simple-card-text">Найти покупателей, которым может понадобиться помощь.</p><a href="{{ url_for('clients_page') }}">Открыть список</a></div>
+        <div class="panel"><h3>Сыграть с нейросетью</h3><p class="simple-card-text">Угадать, кто ушёл из магазина, и сравнить ответ с сетью.</p><a href="{{ url_for('game_page') }}">Начать игру</a></div>
+    </div>
+</section>
+<div class="simple-alert">Здесь используются только выдуманные данные. Процент на экране — это прогноз модели, а не гарантия.</div>
+{% endblock %}

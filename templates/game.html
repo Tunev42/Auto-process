@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Игра — НейроМагазин{% endblock %}
+{% block head %}<script>window.GAME_FIELDS = {{ feature_texts | tojson }};</script>{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><h1>Ты против нейросети</h1><p>Посмотри на данные покупателя и попробуй угадать, ушёл он из магазина или нет.</p></div>
+<div class="simple-grid"><div class="panel"><h3>Счёт игры</h3><p>Ты: <b id="score-you">0 из 0</b></p><p>Нейросеть: <b id="score-net">0 из 0</b></p></div></div>
+<div id="game-board" class="panel simple-space"><h3 id="game-name">Загрузка клиента...</h3><div class="game-stats" id="game-stats"></div>
+    <div class="demo-actions" id="game-choose"><button class="btn btn-ghost" id="btn-stay" type="button">Останется</button><button class="btn btn-primary" id="btn-leave" type="button">Уйдёт</button></div>
+    <div id="game-result" hidden></div>
+</div>
+{% endblock %}

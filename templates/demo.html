@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Проверка клиента — НейроМагазин{% endblock %}
+{% block head %}<script>window.DEMO_FIELDS = {{ fields | tojson }};</script>{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><h1>Проверка клиента</h1><p>Поменяй данные и нажми «Узнать риск». Это учебный пример.</p></div>
+<div class="demo-layout">
+    <div class="panel">
+        <h3>Данные клиента</h3>
+        <form id="demo-form" onsubmit="return false">
+            <div class="field-text"><label for="client-name">Имя клиента</label><input id="client-name" class="simple-input" type="text" maxlength="100" placeholder="Например, Аня П."></div>
+            {% for f in fields %}
+            <div class="field"><label for="feature-{{ loop.index }}">{{ f.name }} <output data-for="feature-{{ loop.index }}">{{ f.default }}</output></label><input type="range" id="feature-{{ loop.index }}" min="{{ f.min }}" max="{{ f.max }}" step="{{ f.step }}" value="{{ f.default }}"></div>
+            {% endfor %}
+            <div class="demo-actions"><button type="button" class="btn btn-primary" id="predict-btn">Узнать риск</button><button type="button" class="btn btn-ghost" id="random-btn">Случайный клиент</button></div>
+        </form>
+    </div>
+    <div class="panel result-panel"><h3>Результат</h3><div id="result" class="result-empty">Здесь появится ответ нейросети.</div></div>
+</div>
+{% endblock %}

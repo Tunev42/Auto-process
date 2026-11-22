@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Как работает — НейроМагазин{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><h1>Как работает нейросеть</h1><p>Постарались объяснить всё простыми словами.</p></div>
+<div class="how-grid">
+    <div class="how-card"><h2>1. Что такое нейрон?</h2><p>Нейрон берёт несколько чисел, умножает на веса, складывает и получает результат.</p><p>Мы написали нейросеть на Python, без готовых библиотек для нейросетей.</p></div>
+    <div class="how-card"><h2>2. Что такое сигмоида?</h2><p>Она превращает число в значение от 0 до 1. Попробуй подвигать ползунок.</p>
+        <svg class="how-chart" viewBox="0 0 400 240" role="img" aria-label="График сигмоиды"><line x1="20" y1="230" x2="380" y2="230" stroke="currentColor" opacity=".3"/><polyline id="sig-curve" fill="none" stroke="#3B82F6" stroke-width="3"/><circle id="sig-dot" cx="200" cy="120" r="7" fill="#F97316"/></svg>
+        <input type="range" min="-6" max="6" value="0" step="0.1" id="sig-x" aria-label="Значение для сигмоиды"><p>Число: <b id="sig-x-value">0</b>. Ответ: <b id="sig-y-value">0.5</b>.</p>
+    </div>
+    <div class="how-card how-card-wide"><h2>3. Из чего состоит наша сеть?</h2><p>8 показателей клиента → 16 нейронов → 1 ответ: риск ухода.</p>
+        <svg class="simple-chart" viewBox="0 0 720 540" role="img" aria-label="Схема нейронной сети" id="net-svg"></svg>
+    </div>
+    <div class="how-card how-card-wide"><h2>4. Что больше всего влияет на ответ?</h2><p>Мы изменили по очереди каждый показатель и посмотрели, насколько меняется ответ модели.</p>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Показатель</th><th>Изменение прогноза</th></tr></thead><tbody>{% for r in importance %}<tr><td>{{ r.name }}</td><td>{{ '%+' if r.delta > 0 else '' }}{{ r.delta }}%</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+</div>
+{% endblock %}

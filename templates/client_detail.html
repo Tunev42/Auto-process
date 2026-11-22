@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ c.name }} — НейроМагазин{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><a href="{{ url_for('clients_page') }}">← К списку клиентов</a><h1>{{ c.name }}</h1><p>Карточка клиента из базы данных</p></div>
+<div class="simple-grid">
+    <div class="panel"><h3>Прогноз нейросети</h3><div class="risk-big {{ verdict.level }}">{{ risk_pct }}%</div><p class="advice">{{ verdict.text }}</p>
+        <p>На самом деле: {% if c.churned is none %}неизвестно{% elif c.churned %}клиент ушёл{% else %}клиент остался{% endif %}.</p>
+        {% if guessed is not none %}<p class="simple-note">{{ 'Сеть угадала.' if guessed else 'Сеть ошиблась.' }}</p>{% endif %}
+    </div>
+    <div class="panel"><h3>Данные для прогноза</h3><div class="simple-stack">{% for f in fields %}<p><b>{{ f.hint }}</b>: {{ f.value }}</p>{% endfor %}</div></div>
+</div>
+{% if explain %}<div class="panel simple-space"><h3>Что показалось необычным</h3><ul class="simple-list">{% for r in explain %}<li>{{ r.name }}: {{ r.value }} (у среднего ушедшего клиента {{ r.churner }})</li>{% endfor %}</ul></div>{% endif %}
+{% endblock %}

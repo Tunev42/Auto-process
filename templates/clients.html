@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Клиенты — НейроМагазин{% endblock %}
+{% block content %}
+<div class="page-head simple-space"><h1>Клиенты магазина</h1><p>Всего в базе {{ total }}. После поиска найдено {{ shown }}.</p></div>
+<form method="get" class="filters">
+    <input name="q" type="text" value="{{ q }}" maxlength="100" placeholder="Поиск по имени">
+    <label class="check"><input type="checkbox" name="risk" value="1" {{ 'checked' if only_risk else '' }}> Только с риском</label>
+    <button class="btn btn-primary" type="submit">Найти</button>
+    <a class="btn btn-ghost" href="{{ url_for('clients_page') }}">Сбросить</a>
+</form>
+<div class="table-note-row"><p class="table-note">Для просмотра подробностей нажми на имя.</p><a class="btn btn-ghost" href="{{ url_for('clients_export', q=q, risk='1' if only_risk else '0') }}">Скачать Excel</a></div>
+<div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Клиент</th><th>Риск ухода</th><th>Что делать</th><th>На самом деле</th></tr></thead>
+    <tbody>
+        {% for r in rows %}
+        <tr>
+            <td><a class="name-cell" href="{{ url_for('client_page', client_id=r.id) }}">{{ r.name }}</a></td>
+            <td><span class="risk-badge risk-{{ r.verdict.level }}">{{ r.risk_pct }}%</span></td>
+            <td>{{ r.verdict.text }}</td>
+            <td>{% if r.churned is none %}неизвестно{% elif r.churned %}ушёл{% else %}остался{% endif %}</td>
+        </tr>
+        {% else %}<tr><td colspan="4" class="empty-row">Ничего не нашлось</td></tr>{% endfor %}
+    </tbody>
+</table></div>
+<nav class="pagination" aria-label="Страницы">
+    {% for p in page_nums %}{% if p is none %}<span>…</span>{% elif p == page %}<strong>{{ p }}</strong>{% else %}<a href="{{ url_for('clients_page', q=q, risk='1' if only_risk else '0', page=p) }}">{{ p }}</a>{% endif %}{% endfor %}
+</nav>
+<div class="panel simple-space"><h3>Загрузить клиентов из CSV</h3><p class="simple-note">Можно загрузить свой файл, чтобы добавить клиентов в список. Размер файла — до 2 МБ.</p>
+    <div class="simple-form-row"><a href="{{ url_for('clients_import_sample') }}">Скачать пример CSV</a></div>
+    <form class="simple-form-row" action="{{ url_for('clients_import') }}" method="post" enctype="multipart/form-data"><input type="file" name="csvfile" accept=".csv,text/csv" required><button class="btn btn-primary" type="submit">Загрузить</button></form>
+</div>
+{% endblock %}
